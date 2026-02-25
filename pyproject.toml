@@ -3,7 +3,9 @@ name = "backend"
 version = "0.1.0"
 dependencies = [
     "fastapi",
-    "uvicorn"
+    "uvicorn[standard]",
+    "sqlalchemy",
+    "asyncpg"   # if you're using PostgreSQL async
 ]
 
 [build-system]
