@@ -3,7 +3,7 @@ from sqlalchemy.orm import Mapped,mapped_column
 from sqlalchemy import Integer,String,DateTime,func
 from datetime import datetime
 from ..schema.user import UserRole
-from sqlalchemy import Enum
+from enum import Enum
 
 class User(Base):
     __tablename__ = "users"
