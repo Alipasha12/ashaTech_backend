@@ -70,5 +70,5 @@ async def send_message(user_input: MessageCreate,bg: BackgroundTasks, db: AsyncS
     if not user_message:
         raise HTTPException(status_code=404, detail={"message": "message not found"})
     bg.add_task(send_email_background, user_input)
-    return "message sent successfully"
+    return {"message":"message sent successfully"}
 
