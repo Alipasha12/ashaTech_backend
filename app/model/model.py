@@ -4,6 +4,7 @@ from sqlalchemy import Integer,String,DateTime,func
 from datetime import datetime
 from ..schema.user import UserRole
 from enum import Enum
+from sqlalchemy import Enum as SQLEnum
 
 class User(Base):
     __tablename__ = "users"
@@ -12,7 +13,11 @@ class User(Base):
     user_name: Mapped [str] = mapped_column(String, nullable= False)
     email: Mapped [str] = mapped_column(String, nullable= False, unique=True)
     phone_no: Mapped [str] = mapped_column(String, nullable=False)
-    role: Mapped[UserRole] = mapped_column(Enum(UserRole, names="userrole"),default=UserRole.user,nullable=False)
+    role: Mapped[UserRole] = mapped_column(
+    SQLEnum(UserRole, name="userrole"),
+    default=UserRole.user,
+    nullable=False
+)
     password: Mapped [str] = mapped_column(String , nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True),server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True),server_default=func.now(),onupdate=func.now())
