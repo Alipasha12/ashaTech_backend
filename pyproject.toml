@@ -5,7 +5,11 @@ dependencies = [
     "fastapi",
     "uvicorn[standard]",
     "sqlalchemy",
-    "asyncpg"   # if you're using PostgreSQL async
+    "asyncpg",
+    "pydantic-settings",
+    "python-dotenv",
+    "passlib[bcrypt]",
+    "email-validator"
 ]
 
 [build-system]
