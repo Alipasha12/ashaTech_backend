@@ -3,7 +3,12 @@ from sqlalchemy.orm import declarative_base
 from typing import AsyncGenerator
 from app.core.config import settings
 
-engine =create_async_engine(settings.DATABASE_URL)
+engine = create_async_engine(
+    settings.DATABASE_URL,
+    connect_args={
+        "ssl": "require"
+    }
+)
 AsyncSessionLocal = async_sessionmaker(bind=engine,class_=AsyncSession,autoflush=False,expire_on_commit=False)
 
 Base=declarative_base()
