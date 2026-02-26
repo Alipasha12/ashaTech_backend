@@ -26,7 +26,7 @@ app = FastAPI(debug=True,lifespan=lifespan)
 
 @app.get("/")
 def hello():
-    return {"message": "welcome to AshaTech"}
+    return {"welcome to AshaTech"}
 
 # ------------------------------------------Register user-------------------------------------------------
 
