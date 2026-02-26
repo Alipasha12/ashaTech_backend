@@ -35,7 +35,7 @@ async def create_user(user_input: UserCreate, db: AsyncSession = Depends(get_db)
     user_service= UserService(db)
     await user_service.create_user(user_input)
     return {
-        "User is created successfully"
+        "Message":"User is created successfully"
     }
 
 
