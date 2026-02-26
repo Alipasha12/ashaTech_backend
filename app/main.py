@@ -1,11 +1,12 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends, HTTPException,BackgroundTasks
 from .database.database import engine,Base,get_db, AsyncSession
-from .schema.user import MessageCreate,UserCreate
+from .schema.user import MessageCreate,UserCreate,UserLogin
 from .services.user import UserService
 from .model.model import User
 from email.mime.text import MIMEText
 from .core.config import settings
+from fastapi.security import OAuth2PasswordRequestForm
 import smtplib
 
 @asynccontextmanager
@@ -37,7 +38,24 @@ async def create_user(user_input: UserCreate, db: AsyncSession = Depends(get_db)
     return {
         "Message":"User is created successfully"
     }
+# ------------------------------------------login user-------------------------------------------------
 
+@app.post("/login")
+async def login_user(user_input:UserLogin, db: AsyncSession =Depends(get_db)):
+    user_service= UserService(db)
+    token_data  = await user_service.login_user(user_input)
+    return {
+        "message": "User login successfully!",
+        "access_token": token_data["access_token"],
+        "token_type": token_data["token_type"]
+        }
+# {
+#   "user_name": "string",
+#   "email": "user1234@example.com",
+#   "phone_no": "stringst",
+#   "role": "user",
+#   "password": "stringst"
+# }
 
 # -------------------------------------send email message from a form-------------------------------------------------
 

@@ -8,6 +8,9 @@ class Settings(BaseSettings):
     SMTP_PORT: int
     EMAIL_ADDRESS: str
     EMAIL_PASSWORD: str
+    SECRET_KEY : str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int= 30
+    
     model_config = SettingsConfigDict(env_file=".env")
     
 settings = Settings()

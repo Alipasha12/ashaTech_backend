@@ -12,7 +12,6 @@ class MessageCreate(BaseModel):
 
 # ------------------------------------if we pass " " default role = user------------------------------------
 
-
 class UserCreate(BaseModel):
     user_name: str= Field(min_length=4)
     email: EmailStr 
@@ -26,3 +25,7 @@ class UserCreate(BaseModel):
         return v
     password: str = Field(min_length=8,max_length=16)
    
+   
+class UserLogin(BaseModel):
+    email: str = Field(...,description="email_or_username")
+    password : str = Field(...,min_length=6,max_length=18)
