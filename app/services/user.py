@@ -1,4 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import HTTPException
 from ..schema.user import UserCreate
 from ..model.model import User
 from sqlalchemy import select
@@ -17,7 +18,8 @@ class UserService:
     async def create_user(self, user_input: UserCreate):
         existing_user_by_email = await self.get_user_by_email(user_input.email)
         if existing_user_by_email:
-            raise ValueError(f"user with this {user_input.email} is already exist")
+            # raise ValueError(f"user with this {user_input.email} is already exist")
+            raise  HTTPException(status_code=404, detail={"message": "user with this email already exist"})
 
         hashed_password = get_password_hash(user_input.password)
         user_input.password = hashed_password

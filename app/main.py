@@ -1,4 +1,5 @@
-from fastapi import FastAPI, Depends, HTTPException,BackgroundTasks
+from fastapi import FastAPI, Depends, HTTPException,BackgroundTasks,Response
+from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 from .database.database import engine,Base,get_db, AsyncSession
 from .schema.user import MessageCreate,UserCreate,UserLogin
@@ -41,9 +42,16 @@ async def create_user(user_input: UserCreate, db: AsyncSession = Depends(get_db)
 # ------------------------------------------login user-------------------------------------------------
 
 @app.post("/login")
-async def login_user(user_input:UserLogin, db: AsyncSession =Depends(get_db)):
+async def login_user(user_input:UserLogin, response:Response ,db: AsyncSession =Depends(get_db)):
     auth_service= AuthService(db)
     token_data  = await auth_service.login_user(user_input)
+    response.set_cookie(
+        key="access_token",
+        value=token_data,
+        httponly=True,     
+        secure=True,
+        samesite="lax"
+    )
     return {
         "message" : token_data
         }
@@ -57,24 +65,11 @@ async def login_user(user_input:UserLogin, db: AsyncSession =Depends(get_db)):
 
 # ------------------------------------------Logged out user-------------------------------------------------
 
-# blacklisted_tokens = set()
-
-# @app.post("/logout")
-# async def logout(user_input : LogoutUser):
-#     auth_header = user_input.headers.get("Authorization")
-    
-#     if not auth_header:
-#         raise HTTPException(
-#             status_code=400,
-#             detail= "Authorization header missing"
-#         )
-    
-#     token = auth_header.replace("Bearer","")
-#     blacklisted_tokens.add(token)
-    
-#     return{
-#            "message":"logged out successfully "
-#          }
+@app.post("/logout")
+def logout():
+    response = JSONResponse({"message": "Logged out"})
+    response.delete_cookie("access_token")
+    return response
 
 # -------------------------------------send email message from a form-------------------------------------------------
 

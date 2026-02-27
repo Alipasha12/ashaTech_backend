@@ -29,7 +29,3 @@ class UserCreate(BaseModel):
 class UserLogin(BaseModel):
     email: str = Field(...,description="email")
     password : str = Field(...,min_length=6,max_length=18)
-    
-# class LogoutUser(BaseModel):
-#     email: str | None
-#     id: str | None
