@@ -9,7 +9,8 @@ class Settings(BaseSettings):
     EMAIL_ADDRESS: str
     EMAIL_PASSWORD: str
     SECRET_KEY : str
-    ACCESS_TOKEN_EXPIRE_MINUTES: int= 30
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_TOKEN_EXPIRE_MINUTES: int = 15
     
     model_config = SettingsConfigDict(env_file=".env")
     

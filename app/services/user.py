@@ -1,8 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from ..schema.user import UserCreate, UserLogin
+from ..schema.user import UserCreate
 from ..model.model import User
 from sqlalchemy import select
-from ..core.security import get_password_hash, verify_password, create_access_token
+from ..core.security import get_password_hash
 
 
 class UserService:
@@ -29,17 +29,3 @@ class UserService:
         await self.db.refresh(user_create)
         return user_create
 
-    async def login_user(self, user_input: UserLogin):
-        stmt = select(User).where(User.email == user_input.email)
-        result = await self.db.execute(stmt)
-        user = result.scalar_one_or_none()
-
-        if not user:
-            raise ValueError(f"user with this {user_input.email} is incorrect")
-
-        if not verify_password(user_input.password, user.password):
-            raise ValueError("incorrect password")
-
-        token_data = {"sub": user.user_name, "role": user.role}
-        token = create_access_token(token_data)
-        return {"access_token": token, "token_type": "bearer"}

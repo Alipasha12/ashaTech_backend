@@ -1,12 +1,12 @@
-from contextlib import asynccontextmanager
 from fastapi import FastAPI, Depends, HTTPException,BackgroundTasks
+from contextlib import asynccontextmanager
 from .database.database import engine,Base,get_db, AsyncSession
 from .schema.user import MessageCreate,UserCreate,UserLogin
 from .services.user import UserService
+from .services.auth import AuthService
 from .model.model import User
 from email.mime.text import MIMEText
 from .core.config import settings
-from fastapi.security import OAuth2PasswordRequestForm
 import smtplib
 
 @asynccontextmanager
@@ -42,12 +42,10 @@ async def create_user(user_input: UserCreate, db: AsyncSession = Depends(get_db)
 
 @app.post("/login")
 async def login_user(user_input:UserLogin, db: AsyncSession =Depends(get_db)):
-    user_service= UserService(db)
-    token_data  = await user_service.login_user(user_input)
+    auth_service= AuthService(db)
+    token_data  = await auth_service.login_user(user_input)
     return {
-        "message": "User login successfully!",
-        "access_token": token_data["access_token"],
-        "token_type": token_data["token_type"]
+        "message" : token_data
         }
 # {
 #   "user_name": "string",
@@ -56,6 +54,27 @@ async def login_user(user_input:UserLogin, db: AsyncSession =Depends(get_db)):
 #   "role": "user",
 #   "password": "stringst"
 # }
+
+# ------------------------------------------Logged out user-------------------------------------------------
+
+# blacklisted_tokens = set()
+
+# @app.post("/logout")
+# async def logout(user_input : LogoutUser):
+#     auth_header = user_input.headers.get("Authorization")
+    
+#     if not auth_header:
+#         raise HTTPException(
+#             status_code=400,
+#             detail= "Authorization header missing"
+#         )
+    
+#     token = auth_header.replace("Bearer","")
+#     blacklisted_tokens.add(token)
+    
+#     return{
+#            "message":"logged out successfully "
+#          }
 
 # -------------------------------------send email message from a form-------------------------------------------------
 
