@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     EMAIL_ADDRESS: str
     EMAIL_PASSWORD: str
     SECRET_KEY : str
+    REFRESH_SECRET_KEY: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 15
     PORT: int = 8000

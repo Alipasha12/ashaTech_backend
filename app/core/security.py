@@ -26,11 +26,12 @@ def verify_password(plain_password:str,hashed_password:str):
 
 def create_access_token(data:dict,expire_delta: timedelta | None = None):
     to_encode = data.copy()
+    
     if expire_delta:
         expire = datetime.utcnow() + expire_delta
     else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
-    expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        
     to_encode.update({'exp':expire})
     encode_jwt = jwt.encode(to_encode, settings.SECRET_KEY,algorithm=ALGORITHM)
     return encode_jwt
@@ -39,10 +40,12 @@ def loginTokens(uuid: UUID4)-> dict:
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     refresh_token_expires = timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": str(uuid)}, expire_delta = access_token_expires
+        data={"sub": str(uuid), "type": "access"}, 
+        expire_delta = access_token_expires
     )
     refresh_token = create_access_token(
-        data={"sub": str(uuid)}, expire_delta = refresh_token_expires
+        data={"sub": str(uuid), "type": "refresh"}, 
+        expire_delta = refresh_token_expires
     )
     return{
         "access_token" : access_token,

@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException,BackgroundTasks,Response
+from fastapi.security import HTTPAuthorizationCredentials,HTTPBearer
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 from .database.database import engine,Base,get_db, AsyncSession
@@ -8,6 +9,9 @@ from .services.auth import AuthService
 from .model.model import User
 from email.mime.text import MIMEText
 from .core.config import settings
+from .core.security import ALGORITHM,create_access_token
+from jose import jwt,JWTError
+from datetime import timedelta
 import smtplib
 
 @asynccontextmanager
@@ -33,13 +37,14 @@ def hello():
 # ------------------------------------------Register user-------------------------------------------------
 
 @app.post("/register")
-async def create_user(user_input: UserCreate, db: AsyncSession = Depends(get_db)):
+async def create_user(user_input: UserCreate, db: AsyncSession = Depends(get_db)): 
     user_service= UserService(db)
     await user_service.create_user(user_input)
     return {
         "Message":"User is created successfully"
     }
-# ------------------------------------------login user-------------------------------------------------
+    
+# ------------------------------------------login user--------------------------------------------
 
 @app.post("/login")
 async def login_user(user_input:UserLogin, response:Response ,db: AsyncSession =Depends(get_db)):
@@ -55,15 +60,36 @@ async def login_user(user_input:UserLogin, response:Response ,db: AsyncSession =
     return {
         "message" : token_data
         }
-# {
-#   "user_name": "string",
-#   "email": "user1234@example.com",
-#   "phone_no": "stringst",
-#   "role": "user",
-#   "password": "stringst"
-# }
 
-# ------------------------------------------Logged out user-------------------------------------------------
+# --------------------------------------refresh access token------------------------------------
+
+@app.post("/refresh")
+def refresh_access_token(credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
+    
+    refresh_access= credentials.credentials
+    
+    try:
+        payload = jwt.decode(refresh_access, settings.SECRET_KEY, algorithms=[ALGORITHM])
+        if payload.get("type") != "refresh":
+            raise HTTPException(status_code=403, detail="Invalid token type")
+        
+        user_id =payload.get("sub")
+        
+    except JWTError:
+        raise HTTPException(
+            status_code=403, detail="Invalid or expired refresh token"
+        )
+    new_access_token = create_access_token(
+    data={"sub": user_id, "type": "access"},
+    expire_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
+)
+    
+    return {
+        "access token": new_access_token,
+        "token_type": "bearer"
+    }
+
+# ------------------------------------------Logged out user--------------------------------------
 
 @app.post("/logout")
 def logout():
@@ -71,7 +97,7 @@ def logout():
     response.delete_cookie("access_token")
     return response
 
-# -------------------------------------send email message from a form-------------------------------------------------
+# -------------------------------------send email message from a form----------------------------
 
 def send_email_background(user_input: MessageCreate):
     body = f"""
@@ -96,8 +122,6 @@ def send_email_background(user_input: MessageCreate):
 
 @app.post("/sendmessage")
 async def send_message(user_input: MessageCreate,bg: BackgroundTasks, db: AsyncSession = Depends(get_db)):
-    # user_service= UserService(db)
-    # await user_service.create_message(user_input)
     user_message = user_input
     if not user_message:
         raise HTTPException(status_code=404, detail={"message": "message not found"})
