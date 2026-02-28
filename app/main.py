@@ -4,28 +4,22 @@ from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 from .database.database import engine,Base,get_db, AsyncSession
 from .schema.user import MessageCreate,UserCreate,UserLogin
+from .schema.blog import BlogCreate
 from .services.user import UserService
-from .services.auth import AuthService
-from .model.model import User
-from email.mime.text import MIMEText
+from .services.auth import AuthService,send_email_background
+from .services.blog import BlogService
 from .core.config import settings
 from .core.security import ALGORITHM,create_access_token
 from jose import jwt,JWTError
 from datetime import timedelta
-import smtplib
 
 @asynccontextmanager
-async def lifespan(app=FastAPI):
+async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
-        
-        table_exists = await conn.run_sync(
-            lambda sync_conn: engine.dialect.has_table(sync_conn,User.__tablename__)
-        )
-        if not table_exists:
-            await conn.run_sync(Base.metadata.create_all)
-    yield
+        await conn.run_sync(Base.metadata.create_all)
+
+    yield 
     await engine.dispose()
-    
     
 app = FastAPI(debug=True,lifespan=lifespan)
 
@@ -36,7 +30,7 @@ def hello():
 
 # ------------------------------------------Register user-------------------------------------------------
 
-@app.post("/register")
+@app.post("/register", tags=["Auth"])
 async def create_user(user_input: UserCreate, db: AsyncSession = Depends(get_db)): 
     user_service= UserService(db)
     await user_service.create_user(user_input)
@@ -46,7 +40,7 @@ async def create_user(user_input: UserCreate, db: AsyncSession = Depends(get_db)
     
 # ------------------------------------------login user--------------------------------------------
 
-@app.post("/login")
+@app.post("/login", tags=["Auth"])
 async def login_user(user_input:UserLogin, response:Response ,db: AsyncSession =Depends(get_db)):
     auth_service= AuthService(db)
     token_data  = await auth_service.login_user(user_input)
@@ -63,7 +57,7 @@ async def login_user(user_input:UserLogin, response:Response ,db: AsyncSession =
 
 # --------------------------------------refresh access token------------------------------------
 
-@app.post("/refresh")
+@app.post("/refresh", tags=["Auth"])
 def refresh_access_token(credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     
     refresh_access= credentials.credentials
@@ -91,7 +85,7 @@ def refresh_access_token(credentials: HTTPAuthorizationCredentials = Depends(HTT
 
 # ------------------------------------------Logged out user--------------------------------------
 
-@app.post("/logout")
+@app.post("/logout", tags=["Auth"])
 def logout():
     response = JSONResponse({"message": "Logged out"})
     response.delete_cookie("access_token")
@@ -99,28 +93,7 @@ def logout():
 
 # -------------------------------------send email message from a form----------------------------
 
-def send_email_background(user_input: MessageCreate):
-    body = f"""
-    New Message Received
-
-    Name: {user_input.name}
-    Email: {user_input.email}
-    Phone: {user_input.phone_no}
-
-    Message:
-    {user_input.message}
-    """
-    msg = MIMEText(body)
-    msg["Subject"] = user_input.subject
-    msg["From"] = user_input.email
-    msg["To"] = settings.EMAIL_ADDRESS
-
-    with smtplib.SMTP(settings.SMTP_SERVER, settings.SMTP_PORT) as server:
-        server.starttls()
-        server.login(settings.EMAIL_ADDRESS, settings.EMAIL_PASSWORD)
-        server.send_message(msg)
-
-@app.post("/sendmessage")
+@app.post("/sendmessage", tags=["Auth"])
 async def send_message(user_input: MessageCreate,bg: BackgroundTasks, db: AsyncSession = Depends(get_db)):
     user_message = user_input
     if not user_message:
@@ -128,3 +101,13 @@ async def send_message(user_input: MessageCreate,bg: BackgroundTasks, db: AsyncS
     bg.add_task(send_email_background, user_input)
     return {"message":"message sent successfully"}
 
+# ------------------------------------------Create blog-------------------------------------------------
+
+@app.post("/blog_create",tags=["blogs"])
+async def create_blog(user_input:BlogCreate,db:AsyncSession =Depends(get_db)):
+    blog_service = BlogService(db)
+    await blog_service.create_blog(user_input)
+    return {
+        "message" : "Blog is created"
+    }
+    

@@ -1,10 +1,13 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException, status
 from .user import UserService
-from ..schema.user import UserLogin
+from ..schema.user import UserLogin,MessageCreate
 from ..core.security import verify_password,loginTokens
 from sqlalchemy import select
+from ..core.config import settings
 from ..model.model import User
+from email.mime.text import MIMEText
+import smtplib
 
 
 class AuthService:
@@ -41,3 +44,24 @@ class AuthService:
             "updated_at": user.updated_at,
             "login_token": token_data
         } 
+        
+def send_email_background(user_input: MessageCreate):
+    body = f"""
+    New Message Received
+
+    Name: {user_input.name}
+    Email: {user_input.email}
+    Phone: {user_input.phone_no}
+
+    Message:
+    {user_input.message}
+    """
+    msg = MIMEText(body)
+    msg["Subject"] = user_input.subject
+    msg["From"] = user_input.email
+    msg["To"] = settings.EMAIL_ADDRESS
+
+    with smtplib.SMTP(settings.SMTP_SERVER, settings.SMTP_PORT) as server:
+        server.starttls()
+        server.login(settings.EMAIL_ADDRESS, settings.EMAIL_PASSWORD)
+        server.send_message(msg)

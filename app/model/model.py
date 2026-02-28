@@ -1,11 +1,12 @@
 from ..database.database import Base
 from sqlalchemy.orm import Mapped,mapped_column
-from sqlalchemy import Integer,String,DateTime,func
+from sqlalchemy import Integer,String,DateTime,func,JSON
 from datetime import datetime
 from ..schema.user import UserRole
 from enum import Enum
 from sqlalchemy import Enum as SQLEnum
 
+# User Table
 class User(Base):
     __tablename__ = "users"
     
@@ -19,5 +20,20 @@ class User(Base):
     nullable=False
 )
     password: Mapped [str] = mapped_column(String , nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True),server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True),server_default=func.now(),onupdate=func.now())
+    
+# blog table
+
+class Blog(Base):
+    __tablename__ = "blogs"
+    
+    id: Mapped [int] = mapped_column(Integer, primary_key=True)
+    img: Mapped[str] = mapped_column(String)
+    title: Mapped[str] = mapped_column(String)
+    introduction: Mapped[dict] = mapped_column(JSON)
+    section: Mapped[list] = mapped_column(JSON)
+    conclusion: Mapped[str] = mapped_column(String)
+    contact_information : Mapped[str] = mapped_column(JSON)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True),server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True),server_default=func.now(),onupdate=func.now())
