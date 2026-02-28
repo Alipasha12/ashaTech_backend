@@ -9,7 +9,8 @@ dependencies = [
     "pydantic-settings",
     "python-dotenv",
     "passlib[bcrypt]",
-    "email-validator"
+    "email-validator",
+    "python-jose[cryptography]"
 ]
 
 [build-system]
