@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     SECRET_KEY : str
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 15
+    PORT: int = 8000
     
     model_config = SettingsConfigDict(env_file=".env")
     
