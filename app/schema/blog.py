@@ -25,3 +25,5 @@ class BlogCreate(BaseModel):
     conclusion: str
     contact_information : information
     
+class BlogUpdate(BlogCreate):
+    pass
