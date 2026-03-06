@@ -20,13 +20,13 @@ class BlogService:
     
     async def get_block_by_id(self, blog_id :int):
         result = await self.db.execute(select(Blog).where(Blog.id == blog_id))
-        return result.scalars_one_or_none()
+        return result.scalars().first()
     
     async def update_blog(self, blog_id :int,user_input:BlogUpdate):
         blog = await self.get_block_by_id(blog_id)
         
         if not blog:
-            return {"blog is not find"}
+            return {"blog is not found"}
         
         for key,value in user_input.model_dump(exclude_unset=True).items():
             setattr(blog , key , value)
@@ -39,8 +39,8 @@ class BlogService:
         blog = await self.get_block_by_id(blog_id)
         
         if not blog:
-            return {"blog is not finded"}
+            return {"blog is not founded"}
         
         await self.db.delete(blog)
         await self.db.commit()
-        return {"Message": "Blog is successfully deleted "}
+        return {"Message": "Blog is deleted successfully"}

@@ -5,9 +5,11 @@ from contextlib import asynccontextmanager
 from .database.database import engine,Base,get_db, AsyncSession
 from .schema.user import MessageCreate,UserCreate,UserLogin
 from .schema.blog import BlogCreate,BlogUpdate
+from .schema.service import SeviceCreate,serviceUpdate
 from .services.user import UserService
 from .services.auth import AuthService,send_email_background
 from .services.blog import BlogService
+from .services.service import webService
 from .core.config import settings
 from .core.security import ALGORITHM,create_access_token
 from jose import jwt,JWTError
@@ -140,5 +142,43 @@ async def update_blog(user_input: BlogUpdate , db:AsyncSession = Depends(get_db)
 @app.delete("/{blog_id}", tags=["Blogs"])
 async def delete_blog(blog_id:int, db: AsyncSession = Depends(get_db)):
     blog_service = BlogService(db)
-    result = await blog_service.delete_blog(blog_id)
-    return {"message" : "Blog is deleted"}
+    return await blog_service.delete_blog(blog_id)
+
+# -------------------------------------- Create Service --------------------------------------
+
+@app.post("/service", tags=["Service"])
+async def create_service(user_input: SeviceCreate, db: AsyncSession = Depends(get_db)):
+    service = webService(db)
+    return await service.create_service(user_input)
+
+
+# -------------------------------------- Get All Services ------------------------------------
+
+@app.get("/service", tags=["Service"])
+async def get_services(db: AsyncSession = Depends(get_db)):
+    service = webService(db)
+    return await service.get_service()
+
+
+# -------------------------------------- Get Service by ID -----------------------------------
+
+@app.get("/service/{service_id}", tags=["Service"])
+async def get_service_by_id(service_id: int, db: AsyncSession = Depends(get_db)):
+    service = webService(db)
+    return await service.get_service_by_id(service_id)
+
+
+# -------------------------------------- Update Service --------------------------------------
+
+@app.put("/service/{service_id}", tags=["Service"])
+async def update_service(service_id: int, user_input: serviceUpdate, db: AsyncSession = Depends(get_db)):
+    service = webService(db)
+    return await service.update_service(service_id, user_input)
+
+
+# -------------------------------------- Delete Service --------------------------------------
+
+@app.delete("/service/{service_id}", tags=["Service"])
+async def delete_service(service_id: int, db: AsyncSession = Depends(get_db)):
+    service = webService(db)
+    return await service.delete_service(service_id)

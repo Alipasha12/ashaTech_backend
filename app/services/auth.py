@@ -18,7 +18,7 @@ class AuthService:
     async def login_user(self, user_input: UserLogin):
         stmt = select(User).where(User.email == user_input.email)
         result = await self.db.execute(stmt)
-        user = result.scalar_one_or_none()
+        user = result.scalars().first()
 
         if not user:
             raise HTTPException(
