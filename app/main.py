@@ -123,11 +123,13 @@ async def get_blog(db: AsyncSession = Depends(get_db)):
 
 # ------------------------------------------Get first blog Data-------------------------------------------
 
-@app.get("/{blog_id}", tags=["Blogs"])
-async def get_blog_by_id(db:AsyncSession = Depends(get_db)):
+@app.get("/blogs/{blog_id}", tags=["Blogs"])
+async def get_blog_by_id(blog_id: int, db: AsyncSession = Depends(get_db)):
     blog_service = BlogService(db)
-    blog = await blog_service.get_block_by_id()
-    return blog 
+    blog = await blog_service.get_blog_by_id(blog_id)
+    if not blog:
+        return {"message": "Blog not found"}
+    return blog
 
 # --------------------------------------------Update blog Data--------------------------------------------
 
@@ -160,13 +162,15 @@ async def get_services(db: AsyncSession = Depends(get_db)):
     return await service.get_service()
 
 
-# -------------------------------------- Get Service by ID -----------------------------------
+# -------------------------------------- First Service by ID -----------------------------------
 
-@app.get("/service/{service_id}", tags=["Service"])
+@app.get("/service/{blog_id}", tags=["Service"])
 async def get_service_by_id(service_id: int, db: AsyncSession = Depends(get_db)):
     service = webService(db)
-    return await service.get_service_by_id(service_id)
-
+    blog = await service.get_service_by_id(service_id)
+    if not blog:
+        return {"message": "Service not found"}
+    return blog
 
 # -------------------------------------- Update Service --------------------------------------
 

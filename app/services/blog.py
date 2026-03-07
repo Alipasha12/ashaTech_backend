@@ -18,7 +18,7 @@ class BlogService:
         result = await self.db.execute(select(Blog))
         return result.scalars().all()
     
-    async def get_block_by_id(self, blog_id :int):
+    async def get_blog_by_id(self, blog_id: int):
         result = await self.db.execute(select(Blog).where(Blog.id == blog_id))
         return result.scalars().first()
     
