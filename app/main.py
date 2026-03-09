@@ -164,7 +164,7 @@ async def get_services(db: AsyncSession = Depends(get_db)):
 
 # -------------------------------------- First Service by ID -----------------------------------
 
-@app.get("/service/{blog_id}", tags=["Serviceu"])
+@app.get("/service/{blog_id}", tags=["Service"])
 async def get_service_by_id(service_id: int, db: AsyncSession = Depends(get_db)):
     service = webService(db)
     blog = await service.get_service_by_id(service_id)
