@@ -23,7 +23,7 @@ class BlogService:
         return result.scalars().first()
     
     async def update_blog(self, blog_id :int,user_input:BlogUpdate):
-        blog = await self.get_block_by_id(blog_id)
+        blog = await self.get_blog_by_id(blog_id)
         
         if not blog:
             return {"blog is not found"}
@@ -34,6 +34,7 @@ class BlogService:
         await self.db.commit()
         await self.db.refresh(blog)
         return blog
+    
     
     async def delete_blog(self, blog_id:int):
         blog = await self.get_block_by_id(blog_id)

@@ -134,9 +134,9 @@ async def get_blog_by_id(blog_id: int, db: AsyncSession = Depends(get_db)):
 # --------------------------------------------Update blog Data--------------------------------------------
 
 @app.put("/{blog_id}", tags=["Blogs"])
-async def update_blog(user_input: BlogUpdate , db:AsyncSession = Depends(get_db)):
+async def update_blog(blog_id: int,user_input: BlogUpdate , db:AsyncSession = Depends(get_db)):
     blog_service = BlogService(db)
-    result = await blog_service.update_blog(user_input)
+    result = await blog_service.update_blog(blog_id,user_input)
     return result
 
 # --------------------------------------------Delete blog ------------------------------------------------
@@ -164,7 +164,7 @@ async def get_services(db: AsyncSession = Depends(get_db)):
 
 # -------------------------------------- First Service by ID -----------------------------------
 
-@app.get("/service/{blog_id}", tags=["Service"])
+@app.get("/service/{blog_id}", tags=["Serviceu"])
 async def get_service_by_id(service_id: int, db: AsyncSession = Depends(get_db)):
     service = webService(db)
     blog = await service.get_service_by_id(service_id)
