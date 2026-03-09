@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Depends, HTTPException,BackgroundTasks,Response
 from fastapi.security import HTTPAuthorizationCredentials,HTTPBearer
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from .database.database import engine,Base,get_db, AsyncSession
 from .schema.user import MessageCreate,UserCreate,UserLogin
@@ -24,6 +25,15 @@ async def lifespan(app: FastAPI):
     await engine.dispose()
     
 app = FastAPI(debug=True,lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 
 @app.get("/")
