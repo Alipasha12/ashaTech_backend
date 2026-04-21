@@ -176,10 +176,10 @@ async def get_services(db: AsyncSession = Depends(get_db)):
 @app.get("/service/{service_id}", tags=["Service"])
 async def get_service_by_id(service_id: int, db: AsyncSession = Depends(get_db)):
     service = webService(db)
-    blog = await service.get_service_by_id(service_id)
-    if not blog:
+    service = await service.get_service_by_id(service_id)
+    if not service:
         return {"message": "Service not found"}
-    return blog
+    return service
 
 # -------------------------------------- Update Service --------------------------------------
 
