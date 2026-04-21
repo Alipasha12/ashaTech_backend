@@ -1,6 +1,4 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import Field
-
 
 class Settings(BaseSettings):
     DATABASE_URL: str
@@ -11,6 +9,8 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "dev-secret"
     REFRESH_SECRET_KEY: str = "dev-refresh-secret"
     PORT: int = 8000
+    REFRESH_TOKEN_EXPIRE_MINUTES: int  
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
     
     model_config = SettingsConfigDict(env_file=".env",extra="allow")
 settings = Settings()

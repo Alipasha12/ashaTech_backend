@@ -35,7 +35,6 @@ app.add_middleware(
 )
 
 
-
 @app.get("/")
 def hello():
     return {"message": "welcome to AshaTech"}
