@@ -3,17 +3,14 @@ from pydantic import Field
 
 
 class Settings(BaseSettings):
-    DATABASE_URL: str = Field(default=..., validation_alias="DATABASE_URL")
-    SMTP_SERVER: str
-    SMTP_PORT: int
-    EMAIL_ADDRESS: str
-    EMAIL_PASSWORD: str
-    SECRET_KEY : str
-    REFRESH_SECRET_KEY: str
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-    REFRESH_TOKEN_EXPIRE_MINUTES: int = 15
+    DATABASE_URL: str
+    SMTP_SERVER: str | None = None
+    SMTP_PORT: int = 587
+    EMAIL_ADDRESS: str | None = None
+    EMAIL_PASSWORD: str | None = None
+    SECRET_KEY: str = "dev-secret"
+    REFRESH_SECRET_KEY: str = "dev-refresh-secret"
     PORT: int = 8000
     
-    model_config = SettingsConfigDict(env_file=".env")
-    
+    model_config = SettingsConfigDict(env_file=".env",extra="allow")
 settings = Settings()
