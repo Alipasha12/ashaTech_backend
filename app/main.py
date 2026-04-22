@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 from .database.database import engine,Base,get_db, AsyncSession
 from .schema.user import MessageCreate,UserCreate,UserLogin
 from .schema.blog import BlogCreate,BlogUpdate
-from .schema.service import SeviceCreate,serviceUpdate
+from .schema.service import ServiceResponse
 from .services.user import UserService
 from .services.auth import AuthService,send_email_background
 from .services.blog import BlogService
@@ -15,7 +15,7 @@ from .core.config import settings
 from .core.security import ALGORITHM,create_access_token
 from jose import jwt,JWTError
 from datetime import timedelta
-
+from typing import List
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
@@ -31,7 +31,7 @@ app.add_middleware(
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"],
+    allow_headers=["*"]
 )
 
 
@@ -158,40 +158,39 @@ async def delete_blog(blog_id:int, db: AsyncSession = Depends(get_db)):
 # -------------------------------------- Create Service --------------------------------------
 
 @app.post("/service", tags=["Service"])
-async def create_service(user_input: SeviceCreate, db: AsyncSession = Depends(get_db)):
+async def create_service(user_input: ServiceResponse, db: AsyncSession = Depends(get_db)):
     service = webService(db)
     return await service.create_service(user_input)
+
+# -------------------------------------- Update Service --------------------------------------
+
+@app.put("/{service_id}", tags=["Service"])
+async def update_service(service_id: int, user_input: ServiceResponse, db: AsyncSession = Depends(get_db)):
+    web_service = webService(db)
+    return await web_service.update_service(service_id, user_input)
+
+
+# -------------------------------------- Delete Service --------------------------------------
+
+@app.delete("/{service_id}", tags=["Service"])
+async def delete_service(service_id: int, db: AsyncSession = Depends(get_db)):
+    web_service = webService(db)
+    return await web_service.delete_service(service_id)
 
 
 # -------------------------------------- Get All Services ------------------------------------
 
-@app.get("/service", tags=["Service"])
+@app.get("/{service_id}", response_model=List[ServiceResponse])
 async def get_services(db: AsyncSession = Depends(get_db)):
     service = webService(db)
     return await service.get_service()
-
 
 # -------------------------------------- First Service by ID -----------------------------------
 
 @app.get("/service/{service_id}", tags=["Service"])
 async def get_service_by_id(service_id: int, db: AsyncSession = Depends(get_db)):
-    service = webService(db)
-    service = await service.get_service_by_id(service_id)
+    web_service = webService(db)
+    service = await web_service.get_service_by_id(service_id)
     if not service:
         return {"message": "Service not found"}
     return service
-
-# -------------------------------------- Update Service --------------------------------------
-
-@app.put("/service/{service_id}", tags=["Service"])
-async def update_service(service_id: int, user_input: serviceUpdate, db: AsyncSession = Depends(get_db)):
-    service = webService(db)
-    return await service.update_service(service_id, user_input)
-
-
-# -------------------------------------- Delete Service --------------------------------------
-
-@app.delete("/service/{service_id}", tags=["Service"])
-async def delete_service(service_id: int, db: AsyncSession = Depends(get_db)):
-    service = webService(db)
-    return await service.delete_service(service_id)

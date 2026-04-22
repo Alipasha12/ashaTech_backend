@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from ..schema.service import SeviceCreate,serviceUpdate
+from ..schema.service import ServiceResponse
 from ..model.model import Service
 from sqlalchemy import select
 
@@ -7,7 +7,7 @@ class webService:
     def __init__(self, db: AsyncSession):
         self.db: AsyncSession = db
     
-    async def create_service(self,user_input:SeviceCreate):
+    async def create_service(self,user_input:ServiceResponse):
         service_create = Service(**user_input.model_dump())
         self.db.add(service_create)
         await self.db.commit()
@@ -16,13 +16,14 @@ class webService:
     
     async def get_service(self):
         result = await self.db.execute(select(Service))
-        return result.scalars().all()
+        services = result.scalars().all()
+        return services
     
     async def get_service_by_id(self, Service_id :int):
         result = await self.db.execute(select(Service).where(Service.id == Service_id))
         return result.scalars().first()
     
-    async def update_service(self,service_id:int,user_input:serviceUpdate):
+    async def update_service(self,service_id:int,user_input:ServiceResponse):
         service = await self.get_service_by_id(service_id)
         
         if not service:

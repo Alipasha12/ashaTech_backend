@@ -1,31 +1,51 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
-class section(BaseModel):
-    title:str
-    desc:str
- 
-class choose_us(BaseModel):
-    title:str
-    description:str   
+class Section(BaseModel):
+    heading: str
+    content: str
+    content2: Optional[str] = None
+    content3: Optional[str] = None
+    content4: Optional[str] = None
+    content5: Optional[str] = None
+    content6: Optional[str] = None
+
+    class Config:
+        orm_mode = True
 
 
-class section2(BaseModel):
-    title:str
-    description:str
-  
-class technologies(BaseModel):
+class ChooseUs(BaseModel):
+    title: str
+    description: str
+
+    class Config:
+        orm_mode = True
+
+
+class Section2(BaseModel):
+    title: str
+    description: str
+
+    class Config:
+        orm_mode = True
+
+
+class Technology(BaseModel):
     img: str
     title: str
-    desc: str  
+    desc: str
 
-class SeviceCreate(BaseModel):
-    category: str
-    img:str 
-    section:section
-    choose_us: choose_us
-    section2:List[section2]
-    technologies: List[technologies]
-    
-class serviceUpdate(SeviceCreate):
-    pass
+    class Config:
+        orm_mode = True
+
+
+class ServiceResponse(BaseModel):
+    title: str
+    img: str
+    introduction: dict
+    contact_information: dict
+    conclusion: str
+    section: list[Section]
+
+    class Config:
+        orm_mode = True
