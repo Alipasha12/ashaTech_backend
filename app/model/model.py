@@ -30,11 +30,11 @@ class Blog(Base):
     
     id: Mapped [int] = mapped_column(Integer, primary_key=True)
     img: Mapped[str] = mapped_column(String)
-    title: Mapped[str] = mapped_column(String)
+    title: Mapped[dict] = mapped_column(JSON)
     introduction: Mapped[dict] = mapped_column(JSON)
     section: Mapped[list] = mapped_column(JSON)
-    conclusion: Mapped[str] = mapped_column(String)
-    contact_information : Mapped[str] = mapped_column(JSON)
+    conclusion: Mapped[dict] = mapped_column(JSON)
+    contact_information : Mapped[dict] = mapped_column(JSON)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True),server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True),server_default=func.now(),onupdate=func.now())
     
