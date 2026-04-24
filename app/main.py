@@ -142,7 +142,7 @@ async def get_blog_by_id(blog_id: int, db: AsyncSession = Depends(get_db)):
 
 # --------------------------------------------Update blog Data--------------------------------------------
 
-@app.put("/{blog_id}", tags=["Blogs"])
+@app.put("/blogs/{blog_id}", tags=["Blogs"])
 async def update_blog(blog_id: int,user_input: BlogUpdate , db:AsyncSession = Depends(get_db)):
     blog_service = BlogService(db)
     result = await blog_service.update_blog(blog_id,user_input)
@@ -150,8 +150,8 @@ async def update_blog(blog_id: int,user_input: BlogUpdate , db:AsyncSession = De
 
 # --------------------------------------------Delete blog ------------------------------------------------
 
-@app.delete("/{blog_id}", tags=["Blogs"])
-async def delete_blog(blog_id:int, db: AsyncSession = Depends(get_db)):
+@app.delete("/blogs/{blog_id}", tags =["Blogs"])
+async def delete_blog(blog_id: int, db:AsyncSession = Depends(get_db)):
     blog_service = BlogService(db)
     return await blog_service.delete_blog(blog_id)
 
@@ -163,6 +163,7 @@ async def create_service(user_input: ServiceResponse, db: AsyncSession = Depends
     return await service.create_service(user_input)
 
 # -------------------------------------- Get All Services ------------------------------------
+
 @app.get("/services", tags=["Service"])
 async def get_services(db:AsyncSession=Depends(get_db)):
     web_service= webService(db)
@@ -171,7 +172,7 @@ async def get_services(db:AsyncSession=Depends(get_db)):
 
 # -------------------------------------- Update Service --------------------------------------
 
-@app.put("/{service_id}", tags=["Service"])
+@app.put("/services/{service_id}", tags=["Service"])
 async def update_service(service_id: int, user_input: ServiceResponse, db: AsyncSession = Depends(get_db)):
     web_service = webService(db)
     return await web_service.update_service(service_id, user_input)
@@ -179,11 +180,10 @@ async def update_service(service_id: int, user_input: ServiceResponse, db: Async
 
 # -------------------------------------- Delete Service --------------------------------------
 
-@app.delete("/{service_id}", tags=["Service"])
-async def delete_service(service_id: int, db: AsyncSession = Depends(get_db)):
+@app.delete("/services/{service_id}", tags= ["Service"])
+async def delete_service(service_id: int, db:AsyncSession = Depends(get_db)):
     web_service = webService(db)
     return await web_service.delete_service(service_id)
-
 
 # -------------------------------------- First Service by ID -----------------------------------
 

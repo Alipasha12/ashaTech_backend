@@ -44,9 +44,9 @@ class Service(Base):
     __tablename__ = "services"
     
     id: Mapped [int] = mapped_column(Integer, primary_key=True)
-    category: Mapped[str] = mapped_column(String)
+    title: Mapped[str] = mapped_column(String)
     img: Mapped[str] = mapped_column(String)
-    section: Mapped[dict] = mapped_column(JSON)
+    introduction: Mapped[dict] = mapped_column(JSON)
     choose_us: Mapped[dict] = mapped_column(JSON)
-    section2: Mapped[list] = mapped_column(JSON)
+    section: Mapped[list] = mapped_column(JSON)
     technologies: Mapped[list] = mapped_column(JSON)

@@ -37,7 +37,7 @@ class BlogService:
     
     
     async def delete_blog(self, blog_id:int):
-        blog = await self.get_block_by_id(blog_id)
+        blog = await self.get_blog_by_id(blog_id)
         
         if not blog:
             return {"blog is not founded"}
