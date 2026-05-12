@@ -10,7 +10,8 @@ class Settings(BaseSettings):
     REFRESH_SECRET_KEY: str = "dev-refresh-secret"
     PORT: int = 8000
     REFRESH_TOKEN_EXPIRE_MINUTES: int  
-    ACCESS_TOKEN_EXPIRE_MINUTES: int
+    REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
     
     model_config = SettingsConfigDict(env_file=".env",extra="allow")
 settings = Settings()

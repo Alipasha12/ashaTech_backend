@@ -45,3 +45,5 @@ class webService:
         await self.db.delete(service)
         await self.db.commit()
         return {"Message": "service is deleted successfully"}
+    
+   

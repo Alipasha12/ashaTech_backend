@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException,BackgroundTasks,Response
+from fastapi import FastAPI, Depends, HTTPException,BackgroundTasks,Response, Request
 from fastapi.security import HTTPAuthorizationCredentials,HTTPBearer
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -31,7 +31,7 @@ app.add_middleware(
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"]
+    allow_headers=["*"],
 )
 
 
@@ -52,54 +52,49 @@ async def create_user(user_input: UserCreate, db: AsyncSession = Depends(get_db)
 # ------------------------------------------login user----------------------------------------------------
 
 @app.post("/login", tags=["Auth"])
-async def login_user(user_input:UserLogin, response:Response ,db: AsyncSession =Depends(get_db)):
-    auth_service= AuthService(db)
-    token_data  = await auth_service.login_user(user_input)
-    response.set_cookie(
-        key="access_token",
-        value=token_data,
-        httponly=True,     
-        secure=True,
-        samesite="lax"
-    )
-    return {
-        "message" : token_data
-        }
+async def login_user(
+    user_input: UserLogin,
+    response: Response,
+    db: AsyncSession = Depends(get_db)
+):
+    auth_service = AuthService(db)
+
+    token_data = await auth_service.login_user(user_input, response)
+    return token_data
+
 
 # --------------------------------------refresh access token----------------------------------------------
 
 @app.post("/refresh", tags=["Auth"])
-def refresh_access_token(credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
-    
-    refresh_access= credentials.credentials
-    
+def refresh_access_token(request: Request):
+    refresh_access = request.cookies.get("refresh_token")
+    if not refresh_access:
+        raise HTTPException(status_code=403, detail="Refresh token missing")
+
     try:
         payload = jwt.decode(refresh_access, settings.SECRET_KEY, algorithms=[ALGORITHM])
         if payload.get("type") != "refresh":
             raise HTTPException(status_code=403, detail="Invalid token type")
-        
-        user_id =payload.get("sub")
-        
+
+        user_id = payload.get("sub")
+
     except JWTError:
-        raise HTTPException(
-            status_code=403, detail="Invalid or expired refresh token"
-        )
+        raise HTTPException(status_code=403, detail="Invalid or expired refresh token")
+
     new_access_token = create_access_token(
-    data={"sub": user_id, "type": "access"},
-    expire_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
-)
-    
-    return {
-        "access token": new_access_token,
-        "token_type": "bearer"
-    }
+        data={"sub": user_id, "type": "access"},
+        expire_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),
+    )
+
+    return {"access token": new_access_token, "token_type": "bearer"}
 
 # ------------------------------------------Logged out user-----------------------------------------------
 
 @app.post("/logout", tags=["Auth"])
-def logout():
+def logout(request: Request):
     response = JSONResponse({"message": "Logged out"})
-    response.delete_cookie("access_token")
+    host = request.url.hostname
+    response.delete_cookie("refresh_token", path='/', domain=host)
     return response
 
 # -------------------------------------send email message from a form-------------------------------------
@@ -193,4 +188,12 @@ async def get_service_by_id(service_id: int, db: AsyncSession = Depends(get_db))
     service = await web_service.get_service_by_id(service_id)
     if not service:
         return {"message": "Service not found"}
+    return service
+
+# -------------------------------------- First Service by ID -----------------------------------
+ 
+@app.get("/profile", tags = (["Profile"]))
+async def profile(user_email: str, db:AsyncSession = Depends(get_db)):
+    auth_service = AuthService(db)
+    service = await auth_service.get_profile(user_email)
     return service
