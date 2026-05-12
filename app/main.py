@@ -89,12 +89,27 @@ def refresh_access_token(request: Request):
     return {"access token": new_access_token, "token_type": "bearer"}
 
 # ------------------------------------------Logged out user-----------------------------------------------
-
 @app.post("/logout", tags=["Auth"])
-def logout(request: Request):
-    response = JSONResponse({"message": "Logged out"})
-    host = request.url.hostname
-    response.delete_cookie("refresh_token", path='/', domain=host)
+def logout():
+
+    response = JSONResponse({
+        "message": "Logged out"
+    })
+
+    response.delete_cookie(
+        key="refresh_token",
+        path="/",
+        samesite="None",
+        secure=True,
+    )
+
+    response.delete_cookie(
+        key="access_token",
+        path="/",
+        samesite="None",
+        secure=True,
+    )
+
     return response
 
 # -------------------------------------send email message from a form-------------------------------------

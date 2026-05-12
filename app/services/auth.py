@@ -36,7 +36,6 @@ class AuthService:
         access_token = token_data["access_token"]
         refresh_token = token_data["refresh_token"]
 
-        # Set cookie max_age in seconds. Use REFRESH_TOKEN_EXPIRE_MINUTES from settings.
         response.set_cookie(
             key="refresh_token",
             value=refresh_token,
